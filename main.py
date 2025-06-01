@@ -10,22 +10,9 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from collections import defaultdict
-import json
-import tempfile
-
-# 환경변수에서 JSON 문자열 가져오기
-firebase_json_str = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
-
-# JSON 문자열을 임시 파일로 저장
-if firebase_json_str:
-    with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json") as f:
-        json.dump(json.loads(firebase_json_str), f)
-        firebase_json_path = f.name
-else:
-    raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS_JSON 환경변수가 설정되지 않았습니다.")
 
 # Firebase 초기화
-cred = credentials.Certificate(firebase_json_path)
+cred = credentials.Certificate("firebase_key.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
@@ -43,23 +30,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-from fastapi.responses import HTMLResponse
 
-@app.get("/", response_class=HTMLResponse)
-async def root():
-    return """
-    <html>
-        <head><title>FIND 프로젝트 API</title></head>
-        <body>
-            <h1>FIND 프로젝트 서버가 실행 중입니다 🚀</h1>
-            <p>다음 API를 사용할 수 있습니다:</p>
-            <ul>
-                <li><a href="/ranking">/ranking - 제보 랭킹 보기</a></li>
-                <li><a href="/summary-by-location">/summary-by-location - 장소별 요약 보기</a></li>
-            </ul>
-        </body>
-    </html>
-    """
 # Pydantic 모델 정의
 class ReportRequest(BaseModel):
     reports: list[str]

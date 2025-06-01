@@ -3,11 +3,11 @@ let marker = null;
 let geocoder;
 let searchBox;
 
-function initMap() {
-  const defaultPosition = { lat: 36.3664, lng: 127.3444 };
+const cnuDefaultPosition = { lat: 36.3664, lng: 127.3444 }; // 충남대학교 위치
 
+function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
-    center: defaultPosition,
+    center: cnuDefaultPosition,
     zoom: 15,
     mapTypeControl: true,
     streetViewControl: true,
@@ -15,6 +15,10 @@ function initMap() {
   });
 
   geocoder = new google.maps.Geocoder();
+
+  // 기본 마커 설정 (충남대)
+  addMarker(cnuDefaultPosition);
+  getAddressFromLatLng(cnuDefaultPosition);
 
   const searchBoxElement = document.getElementById("search-box");
 
@@ -50,6 +54,43 @@ function initMap() {
   });
 }
 
+function goToMyLocation() {
+  if (!navigator.geolocation) {
+    alert("이 브라우저는 위치 정보를 지원하지 않습니다. 충남대학교 위치로 이동합니다.");
+    fallbackToCNU();
+    return;
+  }
+
+  if (!map) {
+    alert("지도가 아직 로드되지 않았습니다. 잠시 후 다시 시도해주세요.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const userLocation = new google.maps.LatLng(
+        position.coords.latitude,
+        position.coords.longitude
+      );
+      map.setCenter(userLocation);
+      map.setZoom(17);
+      addMarker(userLocation);
+      getAddressFromLatLng(userLocation);
+    },
+    (error) => {
+      console.warn("위치 정보를 가져오지 못했습니다. 충남대학교로 대체합니다.", error);
+      fallbackToCNU();
+    },
+    { timeout: 10000 }
+  );
+}
+
+function fallbackToCNU() {
+  map.setCenter(cnuDefaultPosition);
+  map.setZoom(15);
+  addMarker(cnuDefaultPosition);
+  getAddressFromLatLng(cnuDefaultPosition);
+}
 
 function addMarker(position) {
   if (marker) marker.setMap(null);
@@ -76,28 +117,6 @@ function getAddressFromLatLng(latLng) {
 
 function updateAddressLabel(address) {
   document.getElementById("address-label").textContent = address;
-}
-
-function goToMyLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const userLocation = new google.maps.LatLng(
-          position.coords.latitude,
-          position.coords.longitude
-        );
-        map.setCenter(userLocation);
-        map.setZoom(17);
-        addMarker(userLocation);
-        getAddressFromLatLng(userLocation);
-      },
-      (error) => {
-        alert("위치 정보를 가져올 수 없습니다: " + error.message);
-      }
-    );
-  } else {
-    alert("이 브라우저에서는 위치 서비스를 지원하지 않습니다.");
-  }
 }
 
 function removeMarker() {

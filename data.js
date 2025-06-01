@@ -1,8 +1,8 @@
 const people = [
     { id: 1, name: "조하경", age: 26, gender: "여", location: "대전 중구 문화동", lastSeen: "2025-05-09", image: "images/스크린샷 2025-05-14 002619.png" },
-    { id: 2, name: "조은수", age: 25, gender: "여", location: "서울 서대문구", lastSeen: "2025-05-11", image: "images/스크린샷 2025-05-14 002713.png" },
-    { id: 3, name: "장정원", age: 22, gender: "남", location: "대구 북구", lastSeen: "2025-05-13", image: "images/스크린샷 2025-05-13 225954.png" },
-    { id: 4, name: "이혜린", age: 17, gender: "여", location: "세종 북구", lastSeen: "2025-05-12", image: "images/스크린샷 2025-05-13 230400.png" },
+    { id: 2, name: "조은수", age: 25, gender: "여", location: "서울 서대문구", lastSeen: "2025-06-01", image: "images/스크린샷 2025-05-14 002713.png" },
+    { id: 3, name: "장정원", age: 22, gender: "남", location: "대구 북구", lastSeen: "2025-05-31", image: "images/스크린샷 2025-05-13 225954.png" },
+    { id: 4, name: "이혜린", age: 17, gender: "여", location: "세종 북구", lastSeen: "2025-05-30", image: "images/스크린샷 2025-05-13 230400.png" },
     { id: 5, name: "조성주", age: 23, gender: "남", location: "대전 유성구 봉명동", lastSeen: "2025-05-04", image: "images/스크린샷 2025-05-13 230153.png" }
 ];
 
