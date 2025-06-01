@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실시간 현황 보기</title>
+  <style>
+    .status-layout {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin: 30px;
+    }
+    .map-container {
+      flex: 2;
+      min-width: 300px;
+      margin-right: 30px;
+    }
+    .score-table-container {
+      flex: 1;
+      min-width: 320px;
+      background: #fafbfc;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px #0001;
+      padding: 20px;
+    }
+    .score-table-container h3 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    table.score-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+    table.score-table th, table.score-table td {
+      border: 1px solid #ddd;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    table.score-table th {
+      background: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-left">
+        <a href="/" class="logo">FIND</a>
+      </div>
+      <div class="auth-buttons">
+        <button class="btn btn-outline">로그인</button>
+        <button class="btn btn-primary">회원가입</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="status-layout">
+    <div class="map-container">
+      <div class="placeholder-text">여기에 지도가 표시될 예정입니다.</div>
+    </div>
+    <div class="score-table-container">
+      <h3>제보 신뢰도 점수</h3>
+      <table class="score-table" id="score-table">
+        <thead>
+          <tr>
+            <th>순위</th>
+            <th>제보번호</th>
+            <th>연락처</th>
+            <th>신뢰도 점수</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- JS에서 채워짐 -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    function updateScoreTable() {
+      fetch("http://localhost:8000/ranking")
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector("#score-table tbody");
+          tbody.innerHTML = "";
+
+          data.forEach((row, idx) => {
+            let score = row["점수"];
+            let scoreCell = "";
+
+            if (score === null || score === undefined || score === "" || isNaN(Number(score))) {
+              scoreCell = "미채점";
+            } else {
+              scoreCell = Number(score);  // 0점도 정확히 표시
+            }
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${idx + 1}</td>
+              <td>${row["제보번호"] || "-"}</td>
+              <td>${row["연락처"] || "-"}</td>
+              <td>${scoreCell}</td>
+            `;
+            tbody.appendChild(tr);
+          });
+        })
+        .catch(err => {
+          console.error("랭킹 불러오기 실패:", err);
+        });
+    }
+
+    updateScoreTable();
+    setInterval(updateScoreTable, 5000);
+  </script>
+</body>
+</html>

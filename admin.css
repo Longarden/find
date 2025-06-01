@@ -1,0 +1,117 @@
+/* 관리자 페이지 컨테이너 */
+.container {
+    max-width: 600px;
+    margin: 60px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.intro-header {
+    background-color: #fff;
+    padding: 60px 0;
+    text-align: center;
+}
+
+.logo-wrapper .logo {
+    font-size: 48px;
+    font-weight: bold;
+    color: #ff9800;
+    text-decoration: none;
+    letter-spacing: 2px;
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+/* 헤더 로고 일관성 유지 */
+/* .logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ff9800;
+    text-decoration: none;
+} */
+
+/* 제목 */
+h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+/* 폼 입력 구역 */
+form label {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 8px;
+    display: block;
+}
+
+textarea {
+    width: 100%;
+    height: 100px;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+}
+
+textarea:focus {
+    border-color: #ff9800;
+    outline: none;
+}
+
+/* 버튼 스타일 */
+button {
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #e08900;
+}
+
+/* 결과 메시지 */
+.result {
+    margin-top: 20px;
+    font-size: 1rem;
+    font-weight: bold;
+    text-align: center;
+    color: green;
+}
+
+/* 오류 메시지를 빨간색으로 표시할 수 있음 */
+.result.error {
+    color: red;
+}
+
+/* 반응형 대응 */
+@media (max-width: 768px) {
+    .container {
+        margin: 30px 16px;
+        padding: 20px;
+    }
+
+    button {
+        width: 100%;
+    }
+    .intro-header {
+        padding: 40px 0;
+    }
+
+    .logo-wrapper .logo {
+        font-size: 32px;  /* 글씨 크기 줄이기 */
+    }
+}

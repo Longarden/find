@@ -1,0 +1,290 @@
+/* 기본 스타일 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+/* 헤더 전체 */
+header {
+    background-color: white;
+    color: black;
+    padding: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Flex로 양옆+중앙 구성 */
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 30px;
+}
+
+/* 왼쪽 로고 */
+header .logo {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-decoration: none;
+    color: black;
+}
+
+/* 중앙 네비게이션 */
+header .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    margin: 0;
+}
+
+header .nav-links li {
+    display: inline;
+}
+
+header .nav-links a {
+    color: black;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+header .nav-links a:hover {
+    color: #ff9800;
+}
+
+/* 오른쪽 로그인/회원가입 */
+header .auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+header .auth-buttons button {
+    background-color: transparent;
+    border: 1px solid black;
+    color: black;
+    padding: 8px 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+header .auth-buttons .btn-primary {
+    background-color: #ff9800;
+    border: none;
+    color: white;
+}
+
+header .auth-buttons button:hover {
+    background-color: #ff6500;
+    color: white;
+}
+
+.hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;      /* 가로 가운데 정렬 */
+    text-align: center;       /* 텍스트 중앙 정렬 */
+    margin: 0 auto;
+    max-width: 800px;
+    padding: 40px 20px;
+}
+
+.hero h1 {
+    font-size: 3rem;          /* 제목 크기 크게 */
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.hero p {
+    font-size: 1.5rem;        /* 부제목도 크게 */
+    color: #555;
+    margin-bottom: 5px;
+}
+
+/* 실종자 리스트 */
+.missing-persons {
+    margin-top: 60px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.section-header h2 {
+    font-size: 2rem;
+}
+
+.badge {
+    background-color: #ff9800;
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 1rem;
+    color: white;
+}
+
+.search-filter {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-box input {
+    padding: 8px 16px;
+    font-size: 1rem;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.filter-options select {
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* 실종자 카드 그리드 */
+.person-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.person-grid .person-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* 실종자 카드 이미지 hover 효과 */
+.person-card img:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.bg-muted {
+    background-color: #f5f5f5;
+}
+
+.hidden {
+    display: none;
+}
+
+/* 지도 링크 */
+.map-link {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* 실종자 카드 스타일 */
+.person-card {
+    display: flex;  /* 플렉스 박스를 사용하여 이미지와 정보 영역 배치 */
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    align-items: center;  /* 세로 정렬 */
+    gap: 20px;  /* 이미지와 정보 사이의 간격 */
+}
+
+/* 이미지 스타일 */
+.person-card img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 8px;
+    flex-shrink: 0;  /* 이미지가 크기를 줄이지 않도록 설정 */
+}
+
+/* 실종자 정보 영역 */
+.card-info {
+    display: flex;  /* 정보를 가로로 나열 */
+    flex-direction: column;  /* 세로로 나열 */
+    gap: 10px;  /* 항목 간 간격 */
+    width: 100%;  /* 정보 영역이 가로로 가득 차도록 설정 */
+}
+
+/* 이름, 나이, 성별을 한 줄로 나열 */
+.card-info .info-group {
+    display: flex;
+    gap: 20px;
+}
+
+/* 배지 스타일 */
+.badge {
+    padding: 5px 10px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+}
+
+.badge-danger {
+    background-color: #e74c3c;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-info {
+    background-color: #3498db;
+    color: white;
+}
+
+/* 반응형 미디어 쿼리 */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1.1rem;
+    }
+
+    .search-filter {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .person-card {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .person-card img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+        margin: 0 auto;
+    }
+
+    .card-info {
+        align-items: center;
+    }
+
+    .info-group {
+        justify-content: center;
+    }
+}

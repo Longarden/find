@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIND - 실종자 찾기 플랫폼</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+  <div class="container">
+    <div class="header-left">
+      <a href="index.html" class="logo">FIND</a>
+    </div>
+    <ul class="nav-links">
+      <li><a href="ranking.html">랭킹</a></li>
+      <li><a href="admin.html">관리자</a></li>
+    </ul>
+    
+  </div>
+</header>
+
+    <main class="container">
+        <section class="hero">
+            <h1>실종자를 함께 찾아주세요</h1>
+            <p>여러분의 작은 관심이 큰 힘이 됩니다, 실종자 찾기에 동참해주세요.</p>
+        </section>
+
+        <!-- <section class="card">
+            <div class="card-content">
+                <textarea id="missing-text" placeholder="실종 문자를 여기에 붙여넣으세요..."></textarea>
+                <div class="card-footer">
+                    <div class="location">
+                        <span class="icon">📍</span>
+                        <span>현재 위치에서 약 2.3km 거리</span>
+                    </div>
+                    <button id="report-btn" class="btn btn-primary" disabled>
+                        <span class="icon">📤</span>
+                        제보하기
+                    </button>
+                </div>
+            </div>
+        </section> -->
+
+        <section class="missing-persons">
+            <div class="section-header">
+                <h2>현재 진행 중인 실종자 찾기</h2>
+                <span id="total-count" class="badge">총 0건</span>
+            </div>
+
+            <div class="search-filter">
+                <div class="search-box">
+                    <span class="icon">🔍</span>
+                    <input id="search-input" type="search" placeholder="이름, 지역으로 검색...">
+                </div>
+                
+                <div class="filter-options">
+                    <select id="risk-filter">
+                        <option value="all">위험도: 전체</option>
+                        <option value="critical">매우 높음</option>
+                        <option value="high">높음</option>
+                        <option value="medium">중간</option>
+                        <option value="low">낮음</option>
+                    </select>
+                    
+                    <select id="sort-option">
+                        <option value="risk">위험도순</option>
+                        <option value="recent">최근실종순</option>
+                        <option value="age">나이어린순</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="person-grid" class="person-grid">
+                <!-- JavaScript로 동적 생성됨 -->
+            </div>
+            
+            <div id="no-results" class="text-center p-8 bg-muted rounded-md hidden">
+                <p class="text-muted">검색 결과가 없습니다.</p>
+            </div>
+            
+            <!-- <div class="map-link">
+                <a href="map.html">
+                    <button class="btn btn-outline">
+                        <span class="icon">🗺️</span>
+                        모든 제보 지도에서 보기
+                    </button>
+                </a>
+            </div> -->
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© 2025 FIND 프로젝트. 모든 권리 보유.</p>
+        </div>
+    </footer>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>실시간 제보 현황</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; background: #f5f7fa; }
+    header { background-color: #333; color: white; padding: 10px 20px; }
+    .container { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: bold; color: white; text-decoration: none; font-size: 20px; }
+    .auth-buttons .btn { margin-left: 10px; padding: 6px 12px; border: none; border-radius: 4px; cursor: pointer; }
+    .btn-outline { background: transparent; border: 1px solid white; color: white; }
+    .btn-primary { background: #4caf50; color: white; }
+
+    .status-layout { display: flex; margin: 30px; gap: 30px; }
+    .map-container { flex: 2; min-width: 300px; background: #e0e0e0; padding: 20px; border-radius: 10px; position: relative; }
+    .score-table-container { flex: 1; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px #0001; }
+    .summary-box { margin-top: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px; border: 1px solid #ddd; white-space: pre-wrap; }
+    .details-box { margin-top: 10px; background: #fff; border: 1px solid #ccc; border-radius: 8px; padding: 10px; display: none; }
+
+    .map-button {
+      position: absolute;
+      padding: 6px 8px;
+      background: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .show-btn {
+      margin-top: 10px;
+      background: #607d8b;
+      color: white;
+      padding: 6px 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="/" class="logo">FIND</a>
+      <div class="auth-buttons">
+        <button class="btn btn-outline">로그인</button>
+        <button class="btn btn-primary">회원가입</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="status-layout">
+    <div class="map-container">
+      <div style="position: relative; height: 400px; background: #ccc; border-radius: 10px;">
+        <button class="map-button" style="top: 50px; left: 60px;" onclick="showSummary('장현근린공원')">장현근린공원</button>
+        <button class="map-button" style="top: 120px; left: 150px;" onclick="showSummary('서울역')">서울역</button>
+        <button class="map-button" style="top: 200px; left: 100px;" onclick="showSummary('중앙시장')">중앙시장</button>
+      </div>
+      <div class="summary-box" id="summary-box">
+        장소 버튼을 클릭하면 요약된 제보 내용이 여기에 표시됩니다.
+        <button id="show-details-btn" class="show-btn" onclick="toggleDetails()">자세히 보기</button>
+        <div class="details-box" id="details-box"></div>
+      </div>
+    </div>
+
+    <div class="score-table-container">
+      <h3>제보 신뢰도 점수</h3>
+      <table class="score-table" id="score-table" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr><th>순위</th><th>제보번호</th><th>연락처</th><th>신뢰도 점수</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let summaries = {};
+    let allReports = [];
+    let currentLocation = "";
+    let autoPostInterval = null;
+
+    function updateScoreTable() {
+      fetch("http://localhost:8000/ranking")
+        .then(res => res.json())
+        .then(data => {
+          allReports = data;
+          const tbody = document.querySelector("#score-table tbody");
+          tbody.innerHTML = "";
+          data.forEach((row, idx) => {
+            let score = row["점수"];
+            let scoreCell = (score === null || score === undefined || score === "" || isNaN(Number(score))) ? "미채점" : Number(score);
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+              <td>${idx + 1}</td>
+              <td>${row["제보번호"] || "-"}</td>
+              <td>${row["연락처"] || "-"}</td>
+              <td>${scoreCell}</td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    function loadSummaries() {
+      fetch("http://localhost:8000/summary-by-location")
+        .then(res => res.json())
+        .then(data => {
+          summaries = data;
+        });
+    }
+
+    function showSummary(place) {
+      currentLocation = place;
+      const box = document.getElementById("summary-box");
+      box.childNodes[0].textContent = summaries[place] || `${place}에 대한 요약이 아직 없습니다.`;
+      document.getElementById("details-box").style.display = "none";
+    }
+
+    function toggleDetails() {
+      const detailBox = document.getElementById("details-box");
+      if (detailBox.style.display === "none") {
+        const filtered = allReports.filter(r => r["gemini"].includes(currentLocation));
+        filtered.sort((a, b) => {
+          const s1 = isNaN(a["점수"]) ? -1 : a["점수"];
+          const s2 = isNaN(b["점수"]) ? -1 : b["점수"];
+          return s2 - s1;
+        });
+        detailBox.innerHTML = filtered.map(r => `
+          <div style="margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">
+            <strong>신뢰도 ${r["점수"]}점</strong><br/>
+            ${r["gemini"]}
+          </div>`).join("");
+        detailBox.style.display = "block";
+      } else {
+        detailBox.style.display = "none";
+      }
+    }
+
+    function submitAutoReport() {
+      const now = new Date().toLocaleTimeString();
+      const report = `장소: 장현근린공원\n시간: ${now}\n인상착의: 파란 후드티\n상태: 혼자 벤치에 앉아 있었음\n연락처: 010-1234-5678`;
+
+      fetch("http://localhost:8000/submit-report", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ reports: [report] })
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log("자동 제보 등록 완료:", data);
+        const 점수 = data?.[0]?.점수;
+        if (typeof 점수 === "number" && 점수 >= 1 && 점수 <= 10) {
+          console.log("✅ 평가 완료됨. 자동 POST 중단.");
+          clearInterval(autoPostInterval);
+        }
+      })
+      .catch(err => {
+        console.error("자동 제보 실패:", err);
+      });
+    }
+
+    updateScoreTable();
+    loadSummaries();
+    setInterval(updateScoreTable, 5000);
+    setInterval(loadSummaries, 15000);
+    autoPostInterval = setInterval(submitAutoReport, 5000);
+  </script>
+</body>
+</html>

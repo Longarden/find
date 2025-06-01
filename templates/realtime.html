@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>FIND - 실시간 현황</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f7f7f7;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: white;
+      padding: 16px 32px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .header-buttons {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .header-buttons button {
+      margin-left: 12px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .header-buttons button:last-child {
+      background-color: #ff9800;
+      color: white;
+      border: none;
+    }
+
+    .map-container {
+      width: 100%;
+      height: calc(100dvh - 80px); /* ✅ 모바일 대응 높이 */
+      background-color: #ffffff;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      border-radius: 0;
+      overflow: hidden;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 300px; /* ✅ 작은 화면에서도 보기 좋게 */
+      border: none;
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .header-buttons {
+        margin-top: 10px;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .header-buttons button {
+        margin: 0;
+        flex: 1;
+      }
+
+      .map-container {
+        height: calc(100dvh - 120px); /* 헤더 줄바꿈 반영 */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container">
+        <div class="header-left">
+        <a href="/" class="logo">FIND</a>
+        </div>
+        <!-- <ul class="nav-links">
+        <li><a href="report.html">제보하기</a></li>
+        <li><a href="realtime-status.html">실시간 현황 보기</a></li>
+        </ul> -->
+   
+    </div>
+    </header>
+
+  <div class="map-container">
+    <iframe src="/static/map.html" title="실시간 제보 지도"></iframe>
+  </div>
+
+</body>
+</html>

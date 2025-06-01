@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>제보하기</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="report.css" />
+  <style>
+    #map {
+      flex: 1;
+      height: 420px;
+      border-radius: 8px;
+    }
+    .location-btn, .remove-btn {
+      margin-bottom: 10px;
+      padding: 10px 16px;
+      font-weight: bold;
+      cursor: pointer;
+      align-self: flex-start;
+      border: none;
+      border-radius: 6px;
+      color: white;
+    }
+    .location-btn {
+      background-color: #2196f3;
+    }
+    .location-btn:hover {
+      background-color: #1976d2;
+    }
+    .remove-btn {
+      background-color: #f44336;
+      display: none;
+    }
+    .remove-btn:hover {
+      background-color: #d32f2f;
+    }
+    #address-label {
+      font-weight: bold;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .ranking-section {
+      padding: 40px;
+      background-color: #fafafa;
+      max-width: 800px;
+      margin: 60px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    .ranking-section h3 {
+      margin-bottom: 20px;
+      font-size: 1.5rem;
+    }
+    .ranking-item {
+      padding: 12px 0;
+      border-bottom: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <a href="index.html" class="logo">FIND</a>
+    </div>
+  </header>
+  <div class="report-container">
+    <div class="report-left">
+      <h2>제보하기</h2>
+      <input id="reportContact" type="text" placeholder="연락처를 입력하세요" />
+      <textarea id="reportText" placeholder="여기에 제보 내용을 입력하세요..."></textarea>
+      <button class="report-btn" onclick="handleReport()">제보하기</button>
+      <div class="report-guide">
+  <h4>📌 제보 형식 가이드</h4>
+  <ul>
+    <li>시간: <strong>2025년 5월 27일 오후 2시경</strong></li>
+    <li>장소: <strong>서울시 강남구 ○○공원 근처</strong></li>
+    <li>인상착의: <strong>검은색 티셔츠, 청바지, 빨간 모자</strong></li>
+    <li>상태: <strong>계속 주위를 두리번거리고 있었음</strong></li>
+    <li>기타: <strong>주변에 보호자 없어 보였고 혼자 있었습니다</strong></li>
+  </ul>
+  <p style="color:#d32f2f; font-weight: bold;">※ 허위 제보 시 법적 처벌 대상이 될 수 있습니다.</p>
+</div>
+
+    </div>
+    <div class="report-right">
+      <div id="address-label">지도를 클릭하거나 검색하여 위치를 지정하세요</div>
+      <button class="location-btn" onclick="goToMyLocation()">📍 내 위치 보기</button>
+      <button class="remove-btn" id="remove-btn" onclick="removeMarker()">🗑️ 위치 제거</button>
+      <div id="map"></div>
+    </div>
+  </div>
+  <div class="ranking-section">
+    <h3>제보 랭킹 TOP 5</h3>
+    <div id="ranking-list"></div>
+  </div>
+  <script>
+function handleReport() {
+    const content = document.getElementById('reportText').value.trim();
+    const contact = document.getElementById('reportContact').value.trim();
+
+    if (!contact) {
+      alert("연락처를 입력해주세요.");
+      return;
+    }
+    if (!content) {
+      alert("제보 내용을 입력해주세요.");
+      return;
+    }
+
+    const confirmResult = confirm("허위제보 시 법적 처벌 및 웹 사용 제한이 됩니다. 제보하시겠습니까?");
+    if (!confirmResult) return;
+
+    // 🔧 주소 제거 → 기존 방식으로 전송 (연락처 + 내용만)
+    const combined = `${contact} ${content}`;
+
+    fetch("http://172.20.10.9:8000/submit-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reports: [combined] })
+    })
+    .then(res => {
+      if (res.ok) {
+        alert("제보가 성공적으로 접수되었습니다. 소중한 제보 감사합니다!");
+        document.getElementById('reportText').value = "";
+        document.getElementById('reportContact').value = "";
+        document.getElementById('address-label').textContent = "지도를 클릭하거나 검색하여 위치를 지정하세요";
+        removeMarker?.();
+        loadRanking?.();
+      } else {
+        alert("제보 전송 중 오류가 발생했습니다.");
+      }
+    })
+    .catch(() => {
+      alert("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    });
+  }
+
+    function loadRanking() {
+      fetch("http://172.20.10.9:8000/ranking")
+        .then(res => res.json())
+        .then(data => {
+          const list = document.getElementById("ranking-list");
+          list.innerHTML = "";
+          data.slice(0, 5).forEach((item, index) => {
+            const div = document.createElement("div");
+            div.className = "ranking-item";
+            div.textContent = `${index + 1}위 - ${item.연락처} (${item.점수}점)`;
+            list.appendChild(div);
+          });
+        })
+        .catch(() => {
+          document.getElementById("ranking-list").textContent = "랭킹 정보를 불러오지 못했습니다.";
+        });
+    }
+
+    window.onload = loadRanking;
+  </script>
+  <script src="map.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwNRuTI_Wk6kooxHWXKCgV4FG8dFj94oQ&libraries=places&callback=initMap" async defer></script>
+</body>
+</html>

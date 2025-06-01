@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>제보 점수 랭킹</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="ranking.css">
+    <!-- <style>
+        table { border-collapse: collapse; width: 80%; margin: 30px auto; }
+        th, td { border: 1px solid #aaa; padding: 8px 12px; text-align: center; }
+        th { background: #f0f0f0; }
+        h2 { text-align: center; }
+    </style> -->
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-left">
+                <a href="index.html" class="logo">FIND</a>
+            </div>
+        </div>
+    </header>
+
+    <h2 style="text-align:center;">제보 점수 랭킹</h2>
+
+    <div class="ranking-container">
+        <!-- 상위 랭커 박스 -->
+        <div class="top-rankers">
+            <h2>상위 제보자</h2>
+            <ul class="top-list" id="top-rankers-list">
+                <!-- Top 5 리스트가 여기에 들어감 -->
+            </ul>
+        </div>
+
+        <!-- 전체 랭킹 박스 -->
+        <div class="all-rankers">
+            <h2>전체 랭킹</h2>
+            <div class="ranking-scroll">
+                <table id="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>순위</th>
+                            <th>제보번호</th>
+                            <th>연락처</th>
+                            <th>점수</th>
+                            <th>시간</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- 전체 랭킹 데이터가 여기에 들어감 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function updateRanking() {
+            fetch("http://localhost:8000/ranking")
+                .then(res => res.json())
+                .then(data => {
+                    const tbody = document.querySelector("#ranking-table tbody");
+                    const topList = document.querySelector("#top-rankers-list");
+                    tbody.innerHTML = "";
+                    topList.innerHTML = "";
+
+                    data.forEach((row, idx) => {
+                        // 전체 랭킹 테이블 row
+                        const tr = document.createElement("tr");
+                        const scoreCell = (row["점수"] != null) ? row["점수"] : " ";
+                        tr.innerHTML = `
+                            <td>${idx + 1}</td>
+                            <td>${row["제보번호"] || ""}</td>
+                            <td>${row["연락처"] || ""}</td>
+                            <td>${scoreCell}</td>
+                            <td>${row["시간"] || ""}</td>
+                        `;
+                        tbody.appendChild(tr);
+
+                        // Top 5일 경우만 리스트에 추가
+                        if (idx < 5) {
+                            const li = document.createElement("li");
+                           const medals = ['🥇', '🥈', '🥉', '🏅', '🎖️'];
+li.innerHTML = `
+    <span class="rank">${medals[idx] || `${idx + 1}위`}</span>
+    <span class="user">${row["연락처"] || "익명"}</span>
+    <span class="score">${scoreCell}점</span>
+`;
+
+                            topList.appendChild(li);
+                        }
+                    });
+                })
+                .catch(console.error);
+        }
+
+        updateRanking();
+        setInterval(updateRanking, 5000);
+
+    </script>
+</body>
+</html>

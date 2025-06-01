@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>실종자 제보 - 한 문장 요약 + 자세히 보기</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    #map { height: 500px; width: 100%; }
+    .report-container {
+      padding: 20px;
+      background: #f7f7f7;
+      max-height: 400px;
+      overflow-y: auto;
+      font-family: Arial, sans-serif;
+    }
+    .summary {
+      background: #fff;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    .report-item {
+      background: white;
+      margin-bottom: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      font-size: 0.9rem;
+    }
+    .details-btn {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 6px 12px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .details-btn:hover {
+      background-color: #135ba1;
+    }
+    @media (max-width: 768px) {
+    #map {
+      height: 300px;
+    }
+    .report-container {
+      padding: 12px;
+      max-height: 300px;
+    }
+    .summary {
+      font-size: 0.95rem;
+    }
+    .report-item {
+      font-size: 0.85rem;
+      padding: 6px;
+    }
+    .details-btn {
+      width: 100%;
+      font-size: 0.85rem;
+      padding: 10px;
+    }
+    header .logo {
+      font-size: 20px;
+    }
+  }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+        <div class="header-left">
+          <a href="/FIND/index.html" class="logo">FIND</a>
+
+        </div>
+        <!-- <ul class="nav-links">
+        <li><a href="report.html">제보하기</a></li>
+        <li><a href="realtime-status.html">실시간 현황 보기</a></li>
+        </ul> -->
+   
+    </div>
+    <style>
+      header {
+        background-color: #f8f9fa;
+        padding: 10px 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .logo {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        text-decoration: none;
+      }
+      .nav-links {
+        list-style: none;
+        display: flex;
+        gap: 15px;
+      }
+      .nav-links li a {
+        text-decoration: none;
+        color: #007bff;
+      }
+       @media (max-width: 768px) {
+        header .logo {
+        font-size: 20px;
+    }
+
+       }
+  </style>
+    </header>
+    
+  <div id="map"></div>
+
+  <div class="report-container" id="report-container">
+    <div id="summary" class="summary" style="display:none;"></div>
+    <div id="details-list" style="display:none;"></div>
+  </div>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY"></script>
+  <script>
+    const reports = [
+      { id: 1, phone: "010-34**-6*2*", time: "13:03", lat: 36.365676, lng: 127.334442, location: "대전광역시 유성구 문화원로 39 고 이비가짬뽕 앞", description: "중학생 정도, 보라색 추리닝, 검은색 운동화", confidence: 70 },
+      { id: 2, phone: "010-27**-1*1*", time: "15:00", lat: 36.366068, lng: 127.334707, location: "대전광역시 유성구 궁동 465-1", description: "고등학교 교복 입은 애들과 함께, 얼굴이 똑같음, 추리닝 색은 기억 안남", confidence: 30 },
+      { id: 3, phone: "010-55**-2*5*", time: "15:02", lat: 36.370009, lng: 127.336837, location: "대전광역시 유성구 온천북로 14, 찜질방 앞", description: "보라색 추리닝 착용", confidence: 50 },
+      { id: 4, phone: "010-91**-3*4*", time: "14:30", lat: 36.361825, lng: 127.333803, location: "대전광역시 유성구 468-11", description: "얼굴이 100% 똑같음", confidence: 10 },
+      { id: 5, phone: "010-01**-0*3*", time: "13:33", lat: 36.366799, lng: 127.333265, location: "대전광역시 유성구 온천로 80", description: "보라색 옷 입은 여자애, 어슬렁거림", confidence: 40 }
+    ];
+
+    let map;
+
+    function distance(lat1, lng1, lat2, lng2) {
+      const R = 6371000;
+      const toRad = deg => deg * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function clusterReports(reports, radiusMeters = 100) {
+      const clusters = [];
+      for (const report of reports) {
+        let added = false;
+        for (const cluster of clusters) {
+          const [first] = cluster;
+          if (distance(first.lat, first.lng, report.lat, report.lng) <= radiusMeters) {
+            cluster.push(report);
+            added = true;
+            break;
+          }
+        }
+        if (!added) clusters.push([report]);
+      }
+      return clusters;
+    }
+
+    function createPinIcon(color, label) {
+      const pinSVG = `
+        <svg width="32" height="48" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path fill="${color}" stroke="black" stroke-width="1" d="M12 0C7.03 0 3 4.03 3 9c0 7 9 27 9 27s9-20 9-27c0-4.97-4.03-9-9-9z"/>
+          <circle cx="12" cy="9" r="5" fill="white" />
+          <text x="12" y="13" font-size="10" font-weight="bold" text-anchor="middle" fill="black">${label}</text>
+        </svg>
+      `;
+      return {
+        url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(pinSVG),
+        scaledSize: new google.maps.Size(32, 48),
+        anchor: new google.maps.Point(16, 48),
+        labelOrigin: new google.maps.Point(16, 13),
+      };
+    }
+
+    function getColorByConfidence(confidence) {
+      if (confidence >= 60) return '#4caf50';
+      else if (confidence >= 30) return '#ffeb3b';
+      else return '#f44336';
+    }
+
+    function generateSummary(cluster) {
+      const location = cluster[0].location;
+      const descTexts = cluster.map(r => r.description.toLowerCase());
+      const words = descTexts.join(' ').split(/\W+/);
+      const freq = {};
+      words.forEach(w => {
+        if(w.length <= 2) return;
+        freq[w] = (freq[w] || 0) + 1;
+      });
+      const topWords = Object.entries(freq)
+        .sort((a,b) => b[1] - a[1])
+        .slice(0, 2)
+        .map(x => x[0]);
+      const times = cluster.map(r => r.time);
+      const sortedTimes = times.slice().sort();
+      const timeRange = sortedTimes.length > 1 ? `${sortedTimes[0]}~${sortedTimes[sortedTimes.length-1]}` : sortedTimes[0];
+      const count = cluster.length;
+      const avgConfidence = Math.round(cluster.reduce((sum,r)=>sum+r.confidence,0) / count);
+      const keywordStr = topWords.length ? topWords.join(', ') : '특징 없음';
+      return `보라색 옷을 입은 인물이 유성구 온천로 일대를 중심으로 여러 차례 목격되었으며, 일부 제보에서는 얼굴이 실종자와 매우 유사하다는 내용도 포함되어 있습니다.
+      `;
+    }
+
+    function showSummary(cluster) {
+      const summaryDiv = document.getElementById('summary');
+      const detailsDiv = document.getElementById('details-list');
+      detailsDiv.style.display = 'none';
+      summaryDiv.style.display = 'block';
+      summaryDiv.innerHTML = `
+        <strong>요약 정보</strong><br/>
+        <p>${generateSummary(cluster)}</p>
+        <button id="show-details-btn" class="details-btn">자세히 보기</button>
+      `;
+      document.getElementById('show-details-btn').onclick = () => {
+        showDetails(cluster);
+      };
+    }
+
+    function showDetails(cluster) {
+      const detailsList = document.getElementById('details-list');
+      const summaryDiv = document.getElementById('summary');
+      summaryDiv.style.display = 'none';
+      detailsList.style.display = 'block';
+      const sorted = [...cluster].sort((a,b) => b.confidence - a.confidence);
+      detailsList.innerHTML = "";
+      sorted.forEach(r => {
+        const item = document.createElement("div");
+        item.className = "report-item";
+        item.innerHTML = `
+          <strong>전화번호:</strong> ${r.phone}<br/>
+          <strong>목격시간:</strong> ${r.time}<br/>
+          <strong>위치:</strong> ${r.location}<br/>
+          <strong>상세정보:</strong> ${r.description}<br/>
+          <strong>신뢰도:</strong> ${r.confidence}%
+        `;
+        detailsList.appendChild(item);
+      });
+      detailsList.scrollIntoView({behavior:"smooth"});
+    }
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 36.365, lng: 127.334 },
+        zoom: 15,
+      });
+      const clusters = clusterReports(reports, 100);
+      document.getElementById('summary').style.display = 'none';
+      document.getElementById('details-list').style.display = 'none';
+      clusters.forEach(cluster => {
+        const lat = cluster.reduce((sum, r) => sum + r.lat, 0) / cluster.length;
+        const lng = cluster.reduce((sum, r) => sum + r.lng, 0) / cluster.length;
+        const avgConfidence = Math.round(cluster.reduce((sum, r) => sum + r.confidence, 0) / cluster.length);
+        const label = cluster.length > 1 ? `${cluster.length}` : "";
+        const icon = createPinIcon(getColorByConfidence(avgConfidence), label);
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map,
+          icon,
+          title: cluster.map(r => r.phone).join(", ")
+        });
+        marker.addListener("click", () => {
+          showSummary(cluster);
+        });
+      });
+    }
+
+    window.initMap = initMap;
+  </script>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCwNRuTI_Wk6kooxHWXKCgV4FG8dFj94oQ&callback=initMap" async defer></script>
+
+</body>
+</html>

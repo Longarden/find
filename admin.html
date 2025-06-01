@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 - 경찰 결과 입력</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="admin.css">
+
+    <!-- <style>
+        body { font-family: sans-serif; }
+        .container { width: 600px; margin: 40px auto; }
+        textarea { width: 100%; margin-bottom: 10px; }
+        button { padding: 8px 20px; }
+        .result { margin-top: 20px; color: green; }
+    </style> -->
+</head>
+<body>
+    <header class="intro-header">
+        <div class="logo-wrapper">
+            <a href="index.html" class="logo">FIND</a>
+        </div>
+    </header>
+    <div class="container">
+        <h2>경찰 조사 결과 입력</h2>
+        <form id="admin-form">
+            <label>경찰 조사 결과:</label><br>
+            <textarea id="police_result" rows="3" placeholder="경찰 조사 결과를 입력하세요"></textarea><br>
+            <button type="submit">모든 제보 점수 반영</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        document.getElementById("admin-form").onsubmit = async function(e) {
+            e.preventDefault();
+            const police_result = document.getElementById("police_result").value.trim();
+            if (!police_result) {
+                alert("경찰 결과를 입력하세요.");
+                return;
+            }
+            document.getElementById("result").textContent = "점수 반영 중...";
+            try {
+                const res = await fetch("http://localhost:8000/admin-score", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({police_result})
+                });
+                if (res.ok) {
+                    await res.json(); // 응답을 끝까지 받아야 fetch가 완료됨
+                    document.getElementById("result").textContent = "점수 반영 완료! 랭킹에서 확인하세요.";
+                } else {
+                    document.getElementById("result").textContent = "오류 발생!";
+                }
+            } catch (err) {
+                document.getElementById("result").textContent = "서버 연결 오류!";
+            }
+        }
+    </script>
+</body>
+</html>
