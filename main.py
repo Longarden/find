@@ -19,7 +19,7 @@ firebase_json_str = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
 # JSON 문자열을 임시 파일로 저장
 if firebase_json_str:
     with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json") as f:
-        f.write(firebase_json_str)
+        json.dump(json.loads(firebase_json_str), f)
         firebase_json_path = f.name
 else:
     raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS_JSON 환경변수가 설정되지 않았습니다.")
