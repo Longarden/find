@@ -10,9 +10,22 @@ from dotenv import load_dotenv
 import firebase_admin
 from firebase_admin import credentials, firestore
 from collections import defaultdict
+import json
+import tempfile
+
+# 환경변수에서 JSON 문자열 가져오기
+firebase_json_str = os.getenv("GOOGLE_APPLICATION_CREDENTIALS_JSON")
+
+# JSON 문자열을 임시 파일로 저장
+if firebase_json_str:
+    with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".json") as f:
+        f.write(firebase_json_str)
+        firebase_json_path = f.name
+else:
+    raise RuntimeError("GOOGLE_APPLICATION_CREDENTIALS_JSON 환경변수가 설정되지 않았습니다.")
 
 # Firebase 초기화
-cred = credentials.Certificate("firebase_key.json")
+cred = credentials.Certificate(firebase_json_path)
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 
